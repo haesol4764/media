@@ -1,103 +1,93 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
 
-st.set_page_config(page_title="시니어 디지털 마스터", layout="wide")
+st.set_page_config(page_title="1단계: 조건 선택", layout="wide")
 
-# 어르신 및 사용자용 공통 스타일 적용
 st.markdown("""
     <style>
     html, body, [data-testid="stWidgetLabel"] p { font-size: 1.15rem !important; font-weight: bold !important; }
-    h1 { font-size: 2.6rem !important; color: #1E3A8A; }
-    h2 { font-size: 2.0rem !important; color: #0D9488; }
-    div[data-testid="stHorizontalBlock"] { overflow: visible !important; }
+    .stButton>button { font-size: 1.4rem !important; padding: 15px !important; background-color: #2563EB !important; color: white !important; width: 100%; border-radius: 10px; }
     </style>
 """, unsafe_allow_html=True)
 
-# 💡 [핵심 해결책] 메인 파일 실행 시 모든 페이지에서 쓸 글로벌 세션 변수 미리 방어 생성
+# 💡 다른 페이지로 넘어가도 상태를 유지해 주는 세션 방어선
 if 'selected_apps' not in st.session_state: st.session_state.selected_apps = []
 if 'duration_weeks' not in st.session_state: st.session_state.duration_weeks = 2
 if 'schedule_matrix' not in st.session_state: st.session_state.schedule_matrix = None
 if 'completed_days' not in st.session_state: st.session_state.completed_days = set()
 
-st.title("👵👴 시니어 디지털 소외 해소를 위한 플랫폼")
-st.subheader("데이터 기반 맞춤형 스마트폰 자립 교육 솔루션")
+# 🔥 어르신 실생활 맞춤 18대 세분화 커리큘럼
+APP_CURRICULUM = {
+    "🏥 [병원] 병원 예약 및 똑닥 접수": ["스마트폰 화면에서 [똑닥] 앱 찾아서 가볍게 톡 누르기", "돋보기창을 누르고 '동네 병원 이름' 입력하기", "의사 선생님 이름 아래 [진료 접수/예약] 큰 버튼 누르기", "달력 화면에서 병원에 가고 싶은 [날짜와 시간]을 선택하기", "환자 정보 확인 후 아래 [예약 완료] 꾹 누르기"],
+    "💊 [약국] 모바일 처방전 및 복약 알람": ["병원에서 받은 QR코드 처방전 종이 준비하기", "의료 앱을 켜고 [모바일 처방전 등록] 대형 버튼 누르기", "카메라로 QR코드 조준하여 인식시키기", "스마트폰 [시계 -> 알람] 메뉴 들어가기", "약 먹는 시간에 맞춰 알람을 만들고 [저장] 큰 버튼 누르기"],
+    "📜 [행정] 정부24 등본 발급 및 신분증": ["정부24 앱 아이콘 찾아서 가볍게 누르기", "메인 화면 한가운데 [주민등록등본 발급] 버튼 누르기", "본인 인증 화면에서 [이름, 생년월일, 번호] 입력하기", "노란색 카카오톡 인증 버튼을 누르고 비밀번호 치기", "화면에 등본이나 [모바일 신분증]이 뜰 때까지 기다리기"],
+    
+    "💰 [금융] 은행 앱(카카오뱅크/토스)으로 용돈 보내기": ["노란색 [카카오뱅크] 앱 버튼을 손가락으로 누르기", "내 계좌 옆에 있는 가장 큰 [이체] 글씨 찾아서 누르기", "돈을 보낼 사람의 [은행 이름]을 목록에서 고르기", "보낼 [계좌번호]와 [금액]을 천천히 입력하기", "받는 사람 이름 확인 후 [비밀번호 6자리]를 꾹꾹 누르기"],
+    "💳 [금융] 스마트폰으로 간편결제(삼성페이/카카오페이) 하기": ["계산대 앞에서 스마트폰 화면을 아래에서 위로 쓸어올리기", "지문이나 비밀번호로 결제 화면 열기", "사장님께 스마트폰 뒷면을 카드 단말기에 대달라고 하기", "결제 완료 후 영수증 확인하기"],
+    
+    "🎫 [교통] 기차표/고속버스 예매 (코레일톡/티머니)": ["파란색 [코레일톡] 앱 아이콘 찾아서 누르기", "출발지와 목적지 버튼을 누르고 도시 이름 누르기", "출발하는 [날짜와 시간]을 달력에서 가볍게 선택하기", "가운데에 있는 큰 [열차 조회하기] 버튼 누르기", "원하는 시간대의 [순방향/일반실] 좌석 선택 및 결제하기"],
+    "🚕 [교통] 카카오T로 집 앞까지 택시 호출하기": ["노란색 바탕에 T가 그려진 [카카오T] 앱 누르기", "자동차 모양 [택시] 아이콘 톡 누르기", "[도착지 검색] 칸을 누르고 목적지(예: 병원, 역) 입력하기", "가장 저렴한 [일반 호출] 택시 버튼 선택하기", "[기사님께 직접 결제]를 선택하고 큰 [호출하기] 누르기"],
+    "🚇 [교통] 지하철/버스 도착 시간 확인하기 (카카오맵)": ["지도 앱이나 지하철 앱을 켜기", "상단 검색창에 지금 있는 정류장이나 역 이름 치기", "원하는 버스 번호나 지하철 방향을 누르기", "몇 분 뒤에 도착하는지 빨간색/파란색 글씨 확인하기"],
+    
+    "🛒 [쇼핑] 쿠팡 장보기 및 무거운 쌀/물 배달시키기": ["로켓 모양 [쿠팡] 앱 아이콘을 찾아 누르기", "맨 위 돋보기 모양 [검색창]을 가볍게 톡 누르기", "자판으로 '생수'나 '쌀' 입력하고 [돋보기] 누르기", "상품 그림을 누르고 주황색 [구매하기] 버튼 누르기", "주소 확인 후 [결제하기] 버튼을 아래로 밀기"],
+    "🍗 [쇼핑] 배달의민족으로 치킨/짜장면 시켜 먹기": ["민트색 헬멧 모양 [배달의민족] 앱 누르기", "화면 가운데 [배달] 버튼을 누르고 음식 종류 고르기", "먹고 싶은 식당을 고르고 메뉴 그림 누르기", "화면 아래 [장바구니에 담기] 누르고 결제창으로 넘어가기"],
+    "🥕 [생활] 당근마켓으로 안 쓰는 물건 팔거나 나눔하기": ["주황색 당근 모양 [당근마켓] 앱 누르기", "맨 아래 더하기 모양 [+] 버튼 누르고 [내 물건 팔기] 누르기", "카메라 버튼 눌러서 팔 물건 사진 예쁘게 찰칵 찍기", "물건 이름과 받고 싶은 가격 적고 [작성 완료] 누르기"],
+    
+    "📺 [여가] 유튜브 무료 검색 및 임영웅 노래 듣기": ["빨간색 재생 버튼 모양 [유튜브] 앱을 찾아 누르기", "화면 오른쪽 맨 위 돋보기 모양 [검색] 아이콘 누르기", "자판으로 '임영웅 노래'나 '트로트 메들리' 치고 검색하기", "영상 목록 중 마음에 드는 그림을 눌러 시청하기", "다음에 또 보고 싶다면 영상 아래 [구독] 글씨 꾹 누르기"],
+    "📸 [소통] 카톡 단체방 사진 전송 및 보이스톡 걸기": ["노란색 [카카오톡]을 누르고 가족/친구 대화방 들어가기", "글씨 쓰는 칸 바로 왼쪽에 있는 더하기 모양 [+] 톡 누르기", "녹색 초록창 모양 [앨범] 아이콘 찾아 누르기", "보낼 사진 그림을 선택하고 우측 상단 [전송] 버튼 누르기", "전화기 모양 버튼 눌러서 무료통화(보이스톡) 걸어보기"],
+    "🎁 [소통] 카카오톡으로 생일 커피 쿠폰 선물하기": ["카카오톡 친구 목록에서 생일인 친구 이름 누르기", "화면 가운데 선물 상자 모양 [선물하기] 버튼 누르기", "커피나 케이크 그림을 찾아서 누르기", "[나에게 선물하기] 또는 [친구에게 선물하기] 누르고 결제하기"],
+    
+    "⚙️ [기본] 와이파이 연결로 데이터 요금 아끼기": ["화면 가장자리에 손가락을 대고 아래로 스윽 쓸어내리기", "[와이파이] 안테나 그림을 손가락으로 2초 동안 꾹~ 누르기", "알려준 와이파이 이름 글씨를 찾아 누르기", "비밀번호 칸을 누르고 천천히 번호 치기"],
+    "🔎 [기본] 글자 크기 돋보기처럼 아주 크게 키우기": ["톱니바퀴 모양 [설정] 앱을 찾아서 누르기", "[디스플레이] 또는 [화면] 글씨 찾아서 누르기", "[글자 크기와 스타일] 메뉴를 누르기", "아래에 있는 파란색 동그라미를 오른쪽으로 쭉 당겨 글씨 키우기"],
+    
+    "🛡️ [보안] 스팸/피싱 문자 차단 및 절대 누르지 않기": ["문자 앱을 켜고 모르는 번호의 문자(특히 파란색 주소) 절대 누르지 않기", "우측 상단 [점 3개] 버튼 누르고 [번호 차단] 누르기", "문자 삭제 휴지통 버튼을 눌러 아예 지워버리기"],
+    "🤖 [실전] 식당/카페 무인 계산대(키오스크) 주문 결제": ["카페 대형 모니터 화면(키오스크) 앞으로 가기", "[매장 식사] 혹은 [포장하기] 버튼을 제일 먼저 누르기", "먹고 싶은 음식 그림을 손가락으로 꾹 누르기", "우측 하단 [결제하기] 누르고 카드 구멍에 카드 쑥 집어넣기"]
+}
+
+st.title("🎯 2단계: 배울 분야 및 목표 기간 정하기")
 st.markdown("---")
 
-@st.cache_data
-def load_data():
-    df = pd.read_csv("countries_media.csv")
-    df['이용행태별(1)'] = df['이용행태별(1)'].str.replace('"', '').str.strip()
-    df['항목'] = df['항목'].str.strip()
-    df['이용행태별(1)'] = df['이용행태별(1)'].str.replace('개인 정보', '개인정보')
-    return df
+st.subheader("🔵 1. 어떤 어플 기능을 배우고 싶으신가요? (여러 개 선택 가능)")
+selected_apps = st.multiselect(
+    "원하는 기능을 선택하세요 (분야별로 정리되어 있습니다)", 
+    list(APP_CURRICULUM.keys()), 
+    default=st.session_state.selected_apps
+)
 
-try:
-    df = load_data()
-    st.markdown("### 📊 대한민국 고령층 디지털 정보화 실태 분석")
-    
-    categories = sorted(df['이용행태별(1)'].unique())
-    selected_category = st.selectbox("🎯 분석하고 싶은 스마트폰 기능을 선택하세요", categories)
-    
-    cate_df = df[df['이용행태별(1)'] == selected_category].copy()
-    
-    # 연도별 데이터 보정 및 전처리
-    processed_records = []
-    for year in sorted(cate_df['시점'].unique()):
-        year_df = cate_df[cate_df['시점'] == year]
-        has_yes = year_df['항목'].str.contains('그렇다').any()
+st.subheader("🔵 2. 얼마 동안 나누어서 마스터하고 싶으신가요?")
+duration_option = st.radio(
+    "원하시는 학습 기간 버튼을 누르세요:",
+    ["🏃 2주일 동안 빠르게 배우기", "🚶 3주일 동안 여유롭게 배우기", "🐢 한 달(4주일) 동안 완벽하게 마스터하기"],
+    index=0 if st.session_state.duration_weeks==2 else (1 if st.session_state.duration_weeks==3 else 2)
+)
+
+weeks = 2 if "2주일" in duration_option else (3 if "3주일" in duration_option else 4)
+
+if st.button("👉 이 큰 버튼을 누르시면 달력 스케줄표가 만들어집니다! 👈"):
+    if not selected_apps:
+        st.error("⚠️ 배우고 싶은 어플을 최소한 하나 이상 선택하셔야 합니다.")
+    else:
+        st.session_state.selected_apps = selected_apps
+        st.session_state.duration_weeks = weeks
         
-        if has_yes:
-            yes_row = year_df[year_df['항목'].str.contains('그렇다')].iloc[0]
-            val_60 = yes_row['만60-69세']
-            val_70 = yes_row['만70세이상']
-        else:
-            has_no = year_df['항목'].str.contains('그렇지 않다').any()
-            if has_no:
-                no_row = year_df[year_df['항목'].str.contains('그렇지 않다')].iloc[0]
-                val_60 = round(100 - no_row['만60-69세'], 1)
-                val_70 = round(100 - no_row['만70세이상'], 1)
-            else:
-                val_60, val_70 = 0.0, 0.0
+        days_list = ["월", "화", "수", "목", "금", "토", "일"]
+        new_schedule = {w: {d: "" for d in days_list} for w in range(1, weeks + 1)}
+        
+        total_steps = []
+        for app in selected_apps:
+            for step in APP_CURRICULUM[app]:
+                total_steps.append(f"{app.split(']')[1].strip()} - {step}")
                 
-        processed_records.append({
-            '시점': f"{year}년", '만60-69세': val_60, '만70세이상': val_70, '이용행태별(1)': selected_category
-        })
-        
-    trend_df = pd.DataFrame(processed_records)
-    
-    if not trend_df.empty:
-        latest_row = trend_df.iloc[-1]
-        st.markdown(f"#### 💡 최신 조사 결과 기준 역량 수준 ({latest_row['시점']})")
-        col_m1, col_m2 = st.columns(2)
-        with col_m1:
-            st.metric(label="만 60 ~ 69세 수행 가능 비율", value=f"{latest_row['만60-69세']}%")
-        with col_m2:
-            st.metric(label="만 70세 이상 수행 가능 비율", value=f"{latest_row['만70세이상']}%")
-            
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("#### 📈 연도별 정보화 역량 추이 그래프")
-        if not trend_df.empty:
-            fig_line = px.line(trend_df, x='시점', y=['만60-69세', '만70세이상'],
-                               labels={'value': '가능 비율 (%)', '시점': '조사 연도', 'variable': '연령대'},
-                               markers=True, title=f"[{selected_category}] 연도별 추이")
-            fig_line.update_layout(autosize=True, margin=dict(l=40, r=40, t=40, b=40), xaxis={'type': 'category'})
-            st.plotly_chart(fig_line, use_container_width=True, config={'responsive': True})
-            
-    with col2:
-        st.markdown("#### 🎯 연도별 연령층 간 분포도")
-        if not cate_df.empty:
-            cate_df['시점'] = cate_df['시점'].astype(str) + "년"
-            fig_scatter = px.scatter(cate_df, x='만60-69세', y='만70세이상', color='항목',
-                                     hover_data=['시점'], title="연령층 간 점수 분포 비율")
-            fig_scatter.update_traces(marker=dict(size=14, line=dict(width=1, color='DarkSlateGrey')))
-            fig_scatter.update_layout(autosize=True, margin=dict(l=40, r=40, t=40, b=40))
-            st.plotly_chart(fig_scatter, use_container_width=True, config={'responsive': True})
-        
-    st.markdown("---")
-    st.info("💡 통계를 확인하셨다면 왼쪽 메뉴에서 **'1 학습 어플 및 기간 선택'**을 눌러 진행하세요!")
-except Exception as e:
-    st.error(f"🚨 파일을 불러올 수 없거나 에러가 발생했습니다: {e}")
+        step_idx = 0
+        for w in range(1, weeks + 1):
+            for d in days_list:
+                if step_idx < len(total_steps):
+                    new_schedule[w][d] = total_steps[step_idx]
+                    step_idx += 1
+                else:
+                    if d in ["토", "일"]:
+                        new_schedule[w][d] = "주말 실전 패밀리 미션: 자녀나 손주에게 직접 시연하고 자랑하기"
+                    else:
+                        new_schedule[w][d] = "이전 단계 눈감고도 할 수 있도록 스마트폰 화면 다시 보며 복습하기"
+                        
+        st.session_state.schedule_matrix = new_schedule
+        st.success("🎉 일정이 자동 생성되었습니다! 왼쪽 메뉴의 '2 한눈에 보는 주간 달력'으로 가보세요!")
