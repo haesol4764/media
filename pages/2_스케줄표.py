@@ -2,13 +2,13 @@ import streamlit as st
 
 st.set_page_config(page_title="3단계: 주간 달력", layout="wide")
 
-# 세션 상태 유지 및 데이터 방어선 고정
+# 💡 세션 상태 유지 및 데이터 유실 방어선 고정
 if 'selected_apps' not in st.session_state: st.session_state.selected_apps = []
 if 'duration_weeks' not in st.session_state: st.session_state.duration_weeks = 2
 if 'schedule_matrix' not in st.session_state: st.session_state.schedule_matrix = None
 if 'completed_days' not in st.session_state: st.session_state.completed_days = set()
 
-# 스타일 설정 (어르신 맞춤형 큰 글씨)
+# 어르신 시인성 최적화 스타일링
 st.markdown("""
     <style>
     html, body, [data-testid="stWidgetLabel"] p { font-size: 1.15rem !important; font-weight: bold !important; }
@@ -18,10 +18,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("📅 나만의 한눈에 보는 가로 달력 계획표")
-st.write("선택하신 기간 동안 단 하루도 겹치지 않게 매일 새로운 미션이 제공됩니다.")
+st.write("선택하신 기간 동안 단 하루도 똑같은 미션 없이, 매일 색다른 실생활 실습이 제공됩니다.")
 st.markdown("---")
 
-# 기능별 알록달록 색상 매칭 함수
+# 기능 카테고리별 알록달록 색상 배정 함수
 def get_box_style(task_text, is_done):
     if is_done:
         return "background-color: #DCFCE7; border: 3px solid #22C55E; color: #15803D;"
@@ -40,9 +40,9 @@ def get_box_style(task_text, is_done):
     else:
         return "background-color: #FAFAFA; border: 2px solid #737373; color: #404040;"
 
-# 18대 기능의 초정밀 개별 미션 풀 (1단계 데이터가 부실할 때를 대비한 백업 겸용)
+# 18대 기능별 100% 매일 다른 고유 미션 데이터베이스
 DETAILED_MISSIONS = {
-    "🏥 [병원] 병원 예약 및 똑닥 접수": ["[병원] 똑닥 어플을 홈 화면에서 찾아 켜기", "[병원] 검색창에 우리동네 자주 가는 병원 이름 검색하기", "[병원] 의사 선생님 프로필 아래 [진료 접수] 버튼 확인하기", "[병원] 달력 화면에서 내가 원하는 날짜와 시간 골라보기", "[병원] 환자 정보가 맞는지 보고 최종 [예약 완료] 꾹 누르기"],
+    "🏥 [병원] 병원 예약 및 똑닥 접수": ["[병원] 똑닥 어플을 홈 화면에서 찾아 가볍게 켜기", "[병원] 검색창에 우리동네 자주 가는 병원 이름 검색하기", "[병원] 의사 선생님 프로필 아래 [진료 접수] 버튼 확인하기", "[병원] 달력 화면에서 내가 원하는 날짜와 시간 골라보기", "[병원] 환자 정보가 맞는지 보고 최종 [예약 완료] 꾹 누르기"],
     "💊 [약국] 모바일 처방전 및 복약 알람": ["[약국] 처방전 종이에 인쇄된 사각형 [QR코드] 찾기", "[약국] 의료 앱을 열어 [모바일 처방전 등록] 버튼 누르기", "[약국] 카메라 사각형에 QR코드를 정확히 조준하기", "[약국] 스마트폰 기본 앱 중 [시계 -> 알람] 찾기", "[약국] 약 먹는 아침/저녁 시간에 맞춰 알람 만들고 저장하기"],
     "📜 [행정] 정부24 등본 발급 및 신분증": ["[행정] 스마트폰에서 [정부24] 앱 아이콘 가볍게 누르기", "[행정] 메인 화면 한가운데에 있는 [주민등록등본 발급] 누르기", "[행정] 인증 창에서 내 이름, 생년월일, 번호 천천히 치기", "[행정] 노란색 카카오톡 인증 요청을 누르고 비밀번호 입력하기", "[행정] 화면에 최종 발급된 등본 문서를 눈으로 확인하기"],
     "💰 [금융] 은행 앱(카카오뱅크/토스)으로 용돈 보내기": ["[금융] 내 스마트폰 전용 은행 앱을 누르고 로그인하기", "[금융] 내 계좌 잔액 바로 옆에 있는 큰 [이체] 글씨 누르기", "[금융] 돈을 보낼 가족이나 지인의 [은행 이름] 선택하기", "[금융] 보낼 [계좌번호]와 [금액]을 자판으로 천천히 입력하기", "[금융] 받는 사람 이름이 맞는지 확인 후 [비밀번호 6자리] 꾹 누르기"],
@@ -62,7 +62,7 @@ DETAILED_MISSIONS = {
     "🤖 [실전] 식당/카페 무인 계산대(키오스크) 주문 결제": ["[실전] 식당이나 카페의 큰 주문 모니터 기계 앞에 서기", "[실전] 화면 아래 커다란 [주문하기] 또는 화면 자체를 터치하기", "[실전] 내가 먹고 싶은 음식 메뉴 그림을 손가락으로 꾹 누르기", "[실전] [포장하기]와 [매장 식사] 중 하나를 명확하게 고르기", "[실전] 카드 투입구 구멍 방향에 맞춰 신용카드 깊숙이 집어넣기"]
 }
 
-# 심화/응용 데일리 독립 미션 풀 (절대 중복 방지용 7종 세트)
+# 심화/응용 겹침 절대 방지용 7대 독립 행동 미션 풀
 ADVANCED_VARIATIONS = [
     "어제 배웠던 유용한 단계를 자녀나 지인에게 직접 전화로 친절하게 설명해보기",
     "가이드북이나 도움 없이 오직 내 스마트폰 화면만 보고 똑같이 성공해보기",
@@ -73,19 +73,21 @@ ADVANCED_VARIATIONS = [
     "오늘의 도전: 내가 배운 어플을 열고 평소 안 눌러보던 다른 메뉴도 살짝 터치해보기"
 ]
 
-if st.session_state.selected_apps:
+# 💡 [버그 제어 장치] 선택한 앱이 세션에 들어가 있다면, 스케줄 매트릭스가 비어있어도 여기서 실시간으로 강제 생성합니다.
+if not st.session_state.selected_apps:
+    st.warning("⚠️ 1단계 '학습 어플 및 기간 선택' 메뉴에서 배울 어플을 먼저 선택해 주세요!")
+else:
     weeks = st.session_state.duration_weeks
     days_list = ["월", "화", "수", "목", "금", "토", "일"]
     
-    # 💡 [핵심 알고리즘 수정] 2페이지 진입 시, 선택된 어플 기준으로 무조건 하루에 1개씩 고유 미션을 재생성
+    # 선택된 앱 순서대로 고유 세부 미션들을 일렬로 수집
     dynamic_steps = []
     for app_key in st.session_state.selected_apps:
         if app_key in DETAILED_MISSIONS:
             dynamic_steps.extend(DETAILED_MISSIONS[app_key])
             
-    # 만약 매트릭스가 없거나 하루에 동일 미션이 들어가는 옛날 구조라면 강제 재정립
+    # 매일 다른 미션들로 달력 캘린더 강제 구축 및 바인딩
     forced_schedule = {w: {d: "" for d in days_list} for w in range(1, weeks + 1)}
-    
     step_idx = 0
     backup_idx = 0
     
@@ -95,7 +97,7 @@ if st.session_state.selected_apps:
                 forced_schedule[w][d] = dynamic_steps[step_idx]
                 step_idx += 1
             else:
-                # 정규 단계 소진 시, 선택한 어플의 카테고리명을 추출하여 절대 겹치지 않는 미션 결합
+                # 정규 단계 소진 시, 선택한 카테고리 태그를 명시한 고유 심화 행동 부여
                 if len(dynamic_steps) > 0:
                     base_task = dynamic_steps[backup_idx % len(dynamic_steps)]
                     app_hint = base_task.split(']')[0] + "]" if ']' in base_task else "[스마트폰]"
@@ -106,5 +108,37 @@ if st.session_state.selected_apps:
                 forced_schedule[w][d] = f"{app_hint} {variation_text}"
                 backup_idx += 1
                 
-    # 강제 재배치된 신규 고유 스케줄로 덮어쓰기
     st.session_state.schedule_matrix = forced_schedule
+
+    # 상단 전체 진도율 바 계산
+    total_slots = weeks * 7
+    done_slots = len(st.session_state.completed_days)
+    progress_percent = int((done_slots / total_slots) * 100)
+    
+    st.subheader(f"🏆 현재 어르신의 디지털 마스터 진도율: {progress_percent}% 완료")
+    st.progress(done_slots / total_slots)
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 가로 7칸 형태의 주차별 달력 생성 및 시각화
+    for w in range(1, weeks + 1):
+        st.markdown(f"### 🗓️ [ 제 {w} 주 차 ] 매일 다르게 배우는 달력")
+        cols = st.columns(7)
+        
+        for idx, d in enumerate(days_list):
+            with cols[idx]:
+                task_text = st.session_state.schedule_matrix[w][d]
+                is_done = (w, d) in st.session_state.completed_days
+                
+                badge = "✅ 완료" if is_done else "⏳ 오늘미션"
+                box_design = get_box_style(task_text, is_done)
+                
+                st.markdown(f"""
+                    <div style="{box_design} padding: 14px; border-radius: 12px; min-height: 190px; font-size: 1.0rem; box-shadow: 1px 2px 5px rgba(0,0,0,0.05);">
+                        <center><span style="font-size: 1.1rem;"><b>{d}요일</b></span> <br> <small>({badge})</small></center>
+                        <hr style='margin: 8px 0; border: 0.5px solid opacity 0.3;'>
+                        <div style="line-height: 1.4;">{task_text}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+    st.markdown("---")
+    st.info("💡 오늘 요일의 미션을 눈으로 확인하셨다면, 왼쪽 메뉴의 **'3 데일리 알림 및 실전 가이드'**로 이동하여 실제 스마트폰 훈련을 시작하세요!")
