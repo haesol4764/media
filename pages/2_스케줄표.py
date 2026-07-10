@@ -1,33 +1,88 @@
 import streamlit as st
 
-st.set_page_config(page_title="1단계: 조건 선택", layout="wide")
+st.set_page_config(page_title="3단계: 주간 달력", layout="wide")
 
-st.markdown("""
-    <style>
-    html, body, [data-testid="stWidgetLabel"] p { font-size: 1.15rem !important; font-weight: bold !important; }
-    .stButton>button { font-size: 1.4rem !important; padding: 15px !important; background-color: #2563EB !important; color: white !important; width: 100%; border-radius: 10px; }
-    </style>
-""", unsafe_allow_html=True)
-
-# 세션 상태 유지 방어선
+# 세션 상태 유지 및 데이터 방어선 고정
 if 'selected_apps' not in st.session_state: st.session_state.selected_apps = []
 if 'duration_weeks' not in st.session_state: st.session_state.duration_weeks = 2
 if 'schedule_matrix' not in st.session_state: st.session_state.schedule_matrix = None
 if 'completed_days' not in st.session_state: st.session_state.completed_days = set()
 
-# 18대 세분화 커리큘럼 데이터셋
-APP_CURRICULUM = {
-    "🏥 [병원] 병원 예약 및 똑닥 접수": ["[똑닥 어플]을 화면에서 찾아 켜기", "[돋보기창]에 우리동네 병원 이름 검색하기", "의사 선생님 프로필 아래 [진료 접수/예약] 누르기", "달력에서 원하는 [날짜와 시간] 손가락으로 고르기", "내 정보가 맞는지 보고 [예약 완료] 꾹 누르기"],
-    "💊 [약국] 모바일 처방전 및 복약 알람": ["병원 처방전 종이의 [QR코드] 찾기", "의료 앱에서 [모바일 처방전 등록] 버튼 누르기", "카메라 화면 사각형에 QR코드 조준하기", "스마트폰 [시계 -> 알람] 메뉴 들어가기", "약 먹는 시간에 맞춰 알람 새로 만들고 [저장] 누르기"],
-    "📜 [행정] 정부24 등본 발급 및 신분증": ["[정부24] 앱 아이콘 가볍게 누르기", "메인 화면 가운데 [주민등록등본 발급] 누르기", "인증 창에서 내 [이름, 생년월일, 번호] 치기", "노란색 카카오톡 인증 요청 누르고 비밀번호 입력하기", "화면에 뜬 등본 문서를 눈으로 확인하기"],
-    "💰 [금융] 은행 앱(카카오뱅크/토스)으로 용돈 보내기": ["[카카오뱅크] 앱을 누르고 로그인하기", "내 계좌 잔액 옆 큰 [이체] 글씨 누르기", "돈 보낼 사람의 [은행 이름] 고르기", "보낼 [계좌번호]와 [보낼 금액] 숫자로 치기", "받는 사람 이름 재확인 후 [비밀번호 6자리] 누르기"],
-    "💳 [금융] 스마트폰으로 간편결제(삼성페이/카카오페이) 하기": ["스마트폰 켜진 상태에서 화면 맨 아래를 위로 쓸어올리기", "지문 인식이나 결제 비밀번호 눌러 카드 띄우기", "카드 단말기 근처에 스마트폰 뒷면 대기", "결제 완료 진동과 금액 확인하기"],
-    "🎫 [교통] 기차표/고속버스 예매 (코레일톡/티머니)": ["[코레일톡] 앱 아이콘 찾아서 누르기", "출발지와 목적지(역 이름) 각각 선택하기", "기차 타고 갈 [날짜와 시간] 달력에서 고르기", "중앙의 [열차 조회하기] 파란 버튼 누르기", "원하는 시간의 [일반실 좌석] 선택 후 결제하기"],
-    "🚕 [교통] 카카오T로 집 앞까지 택시 호출하기": ["[카카오T] 앱을 찾아 누르기", "자동차 모양 [택시] 그림 톡 누르기", "[도착지 검색] 칸에 가고 싶은 목적지 입력하기", "여러 요금 중 [일반 호출] 누르기", "[기사님께 직접 결제] 선택 후 아래 큰 [호출하기] 누르기"],
-    "🚇 [교통] 지하철/버스 도착 시간 확인하기 (카카오맵)": ["[카카오맵 또는 지도 앱] 켜기", "상단 검색창에 지금 서 있는 정류장/역 이름 치기", "내가 탈 버스 번호나 지하철 방향 찾기", "실시간으로 몇 분 전인지 초록/빨간 글씨 확인하기"],
-    "🛒 [쇼핑] 쿠팡 장보기 및 무거운 쌀/물 배달시키기": ["[쿠팡] 앱 아이콘을 찾아 누르기", "맨 위 돋보기 모양 [검색창] 손가락으로 톡 누르기", "자판으로 '생수' 또는 '생필품' 치고 검색하기", "물건 목록 중 마음에 드는 상품 그림 누르기", "아래 주황색 [구매하기] 누르고 주문 완료하기"],
-    "🍗 [쇼핑] 배달의민족으로 치킨/짜장면 시켜 먹기": ["[배달의민족] 앱 켜기", "화면 가운데 [배달] 누르고 음식 종류(치킨/한식) 고르기", "마음에 드는 가게를 고르고 메뉴판 구경하기", "먹고 싶은 음식 클릭 후 [장바구니에 담기] 누르기", "주문하기 누르고 집 주소 맞는지 확인 후 결제하기"],
-    "🥕 [생활] 당근마켓으로 안 쓰는 물건 팔거나 나눔하기": ["[당근마켓] 앱 켜기", "우측 하단 더하기 [+] 버튼 누르고 [내 물건 팔기] 고르기", "카메라 아이콘 눌러서 물건 사진 선명하게 찍기", "글 제목과 가격(또는 나눔) 적기", "오른쪽 위 [작성 완료] 눌러 동네에 등록하기"],
-    "📺 [여가] 유튜브 무료 검색 및 임영웅 노래 듣기": ["[유튜브] 앱 찾아서 누르기", "오른쪽 맨 위 돋보기 모양 [검색] 아이콘 누르기", "자판으로 '임영웅 최신 노래' 또는 '뉴스' 치기", "영상 목록 중에서 마음에 드는 그림 눌러 재생하기", "영상 아래에 있는 빨간색 [구독] 글씨 꾹 눌러보기"],
-    "📸 [소통] 카톡 단체방 사진 전송 및 보이스톡 걸기": ["[카카오톡] 켜고 가족이나 친구 대화방 들어가기", "글자 입력칸 바로 왼쪽 더하기 [+] 버튼 누르기", "초록색 그림 모양 [앨범] 아이콘 누르기", "보낼 사진 동그라미를 누르고 우측 상단 [전송] 누르기", "수화기 모양 버튼 눌러서 무료 통화 걸어보기"],
-    "🎁 [소통] 카카오톡으로 생일 커피 쿠폰 선물하기":
+# 스타일 설정 (어르신 맞춤형 큰 글씨)
+st.markdown("""
+    <style>
+    html, body, [data-testid="stWidgetLabel"] p { font-size: 1.15rem !important; font-weight: bold !important; }
+    h1 { font-size: 2.5rem !important; color: #1E3A8A; }
+    h3 { font-size: 1.8rem !important; color: #1E40AF; margin-top: 20px !important; }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("📅 나만의 한눈에 보는 가로 달력 계획표")
+st.write("1단계에서 선택하신 기간에 맞춰 매일 새로운 맞춤형 미션이 분배되었습니다.")
+st.markdown("---")
+
+# 기능별 이쁜 색상 매칭 함수 (어르신 가독성 최적화)
+def get_box_style(task_text, is_done):
+    # 만약 완료 도장을 찍은 날이라면 무조건 초록색으로 변경
+    if is_done:
+        return "background-color: #DCFCE7; border: 3px solid #22C55E; color: #15803D;"
+        
+    # 미션 카테고리별 파스텔톤 색상 지정
+    if "[병원]" in task_text or "[약국]" in task_text:
+        return "background-color: #EFF6FF; border: 2px solid #3B82F6; color: #1E40AF;" # 파란색 계열
+    elif "[금융]" in task_text:
+        return "background-color: #FEF9C3; border: 2px solid #EAB308; color: #854D0E;" # 노란색 계열
+    elif "[교통]" in task_text:
+        return "background-color: #F5F3FF; border: 2px solid #8B5CF6; color: #5B21B6;" # 보라색 계열
+    elif "[쇼핑]" in task_text or "[생활]" in task_text:
+        return "background-color: #FFEDD5; border: 2px solid #F97316; color: #9A3412;" # 주황색 계열
+    elif "[소통]" in task_text or "[여가]" in task_text:
+        return "background-color: #FDF2F8; border: 2px solid #EC4899; color: #9D174D;" # 핑크색 계열
+    elif "[기본]" in task_text or "[보안]" in task_text:
+        return "background-color: #F0FDF4; border: 2px solid #4ADE80; color: #166534;" # 연두색 계열
+    else:
+        return "background-color: #FAFAFA; border: 2px solid #737373; color: #404040;" # 기본 회색 계열
+
+if st.session_state.schedule_matrix is None:
+    st.warning("⚠️ 1단계 '학습 어플 및 기간 선택' 메뉴에서 배울 어플을 고른 후 [스케줄표 생성] 큰 버튼을 먼저 눌러주셔야 이 달력이 나타납니다!")
+else:
+    weeks = st.session_state.duration_weeks
+    days_list = ["월", "화", "수", "목", "금", "토", "일"]
+    
+    # 상단 전체 진도율 바 표시
+    total_slots = weeks * 7
+    done_slots = len(st.session_state.completed_days)
+    progress_percent = int((done_slots / total_slots) * 100)
+    
+    st.subheader(f"🏆 현재 어르신의 디지털 마스터 진도율: {progress_percent}% 완료")
+    st.progress(done_slots / total_slots)
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 주차별 가로 달력 렌더링
+    for w in range(1, weeks + 1):
+        st.markdown(f"### 🗓️ [ 제 {w} 주 차 ] 매일 다르게 배우는 달력")
+        cols = st.columns(7)
+        
+        for idx, d in enumerate(days_list):
+            with cols[idx]:
+                # 해당 주차/요일에 배정된 텍스트 추출
+                task_text = st.session_state.schedule_matrix[w][d]
+                is_done = (w, d) in st.session_state.completed_days
+                
+                # 상단 배지 상태 정의
+                badge = "✅ 완료" if is_done else "⏳ 오늘미션"
+                
+                # 동적 박스 디자인 바인딩
+                box_design = get_box_style(task_text, is_done)
+                
+                # 가로 칸 디자인 출력
+                st.markdown(f"""
+                    <div style="{box_design} padding: 14px; border-radius: 12px; min-height: 170px; font-size: 1.0rem; box-shadow: 1px 2px 5px rgba(0,0,0,0.05);">
+                        <center><span style="font-size: 1.1rem;"><b>{d}요일</b></span> <br> <small>({badge})</small></center>
+                        <hr style='margin: 8px 0; border: 0.5px solid opacity 0.3;'>
+                        <div style="line-height: 1.4;">{task_text}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+    st.markdown("---")
+    st.info("💡 오늘 요일의 미션을 눈으로 확인하셨다면, 왼쪽 메뉴의 **'3 데일리 알림 및 실전 가이드'**로 이동하여 실제 스마트폰 훈련을 시작하세요!")
