@@ -1,90 +1,103 @@
-APP_CURRICULUM = {
-    "🏥 [병원] 병원 예약 및 똑닥/초진 접수": [
-        "스마트폰 화면에서 [똑닥] 또는 병원 전용 앱 찾아서 가볍게 톡 누르기",
-        "화면 상단 돋보기 모양 검색창을 누르고 '동네 병원 이름' 입력하기",
-        "원하는 선생님(의사) 얼굴이나 이름 아래의 [진료 접수/예약] 큰 버튼 누르기",
-        "달력 화면에서 병원에 가고 싶은 [날짜와 시간]을 손가락으로 선택하기",
-        "환자 정보(내 이름)가 맞는지 확인하고 아래 [예약 완료] 꾹 누르기"
-    ],
-    "💊 [약국/처방] 모바일 처방전 및 알람 세팅": [
-        "병원에서 받은 QR코드 처방전 종이를 준비하기",
-        "약국/의료 앱을 켜고 [모바일 처방전 등록] 대형 버튼 누르기",
-        "스마트폰 카메라 구멍을 종이 QR코드 위에 대고 찰칵 조준하기",
-        "매일 약 먹는 시간을 잊지 않게 스마트폰 [시계 -> 알람] 메뉴 들어가기",
-        "아침/점심/저녁 약 시간에 맞춰 알람을 만들고 [저장] 큰 버튼 누르기"
-    ],
-    "📜 [행정] 정부24 등본 발급 및 모바일 신분증": [
-        "정부24 또는 정부 지갑 앱 아이콘 찾아서 가볍게 누르기",
-        "메인 화면 가장 한가운데에 있는 [주민등록등본 발급] 버튼 누르기",
-        "본인 인증 화면이 나오면 내 [이름, 생년월일, 전화번호] 천천히 입력하기",
-        "노란색 카카오톡이나 인증서 버튼을 1초 동안 꾹 누르고 비밀번호 치기",
-        "내 스마트폰 화면에 등본이나 [모바일 운전면허증]이 뜰 때까지 기다리기"
-    ],
-    "💰 [은행] 카카오뱅크/토스로 돈 보내기 (금융)": [
-        "스마트폰 화면에서 노란색 [카카오뱅크] 앱 버튼을 손가락으로 누르기",
-        "내 계좌 옆에 있는 가장 큰 [이체] 글씨 찾아서 누르기",
-        "돈을 보낼 사람의 [은행 이름](예: 국민, 농협)을 목록에서 눌러 고르기",
-        "보낼 [계좌번호]를 숫자 키패드로 천천히 한 글자씩 입력하기",
-        "보낼 금액(예: 10000원)을 정확히 치고, 아래 파란색 [다음] 버튼 누르기",
-        "받는 사람 이름이 맞는지 재차 확인하고, [비밀번호 6자리]를 꾹꾹 누르기"
-    ],
-    "🎫 [교통] 기차표 예매하기 (코레일톡/SRT)": [
-        "스마트폰에서 파란색 [코레일톡] 앱 아이콘 찾아서 누르기",
-        "출발지와 목적지(예: 서울 -> 부산) 버튼을 누르고 도시 이름 누르기",
-        "출발하는 [날짜와 시간]을 달력 화면에서 손가락으로 가볍게 선택하기",
-        "가운데에 있는 큰 [열차 조회하기] 파란색 버튼 누르기",
-        "원하는 시간대의 [순방향/일반실] 좌석 버튼을 찾아 누르기",
-        "화면 아래의 [결제하기] 버튼을 누르고 신용카드 번호 천천히 입력하기"
-    ],
-    "🚕 [이동] 카카오T로 집 앞으로 택시 부르기": [
-        "스마트폰에서 노란색 바탕에 T가 그려진 [카카오T] 앱 누르기",
-        "화면 상단에 있는 자동차 모양 [택시] 아이콘 톡 누르기",
-        "출발지는 지금 내 위치로 자동 잡히니, [도착지 검색] 칸을 누르기",
-        "가고자 하는 목적지(예: OO역, OO병원)를 말하듯 천천히 입력하기",
-        "[일반 호출]이나 가장 저렴한 택시 버튼을 손가락으로 선택하기",
-        "[기사님께 직접 결제]를 선택하고 아래 큰 [호출하기] 버튼 누르기"
-    ],
-    "🛒 [쇼핑] 쿠팡/장보기 앱으로 다이어트·생활용품 사기": [
-        "스마트폰에서 로켓 모양 [쿠팡] 앱 아이콘을 찾아 누르기",
-        "맨 위 돋보기 모양 [검색창]을 손가락으로 가볍게 톡 누르기",
-        "자판으로 '화장지' 또는 '쌀'을 입력하고 자판의 [돋보기/검색] 누르기",
-        "물건 목록 이미지 중에서 마음에 드는 상품의 그림을 누르기",
-        "화면 아래에 있는 주황색 [구매하기] 또는 [로켓배송] 버튼 누르기",
-        "우리집 주소가 맞는지 확인하고 [결제하기] 버튼을 아래로 밀거나 누르기"
-    ],
-    "📺 [여가] 유튜브 무료 돋보기 검색 및 구독하기": [
-        "빨간색 재생 버튼 모양의 [유튜브] 앱을 찾아 누르기",
-        "화면 오른쪽 맨 위에 있는 돋보기 모양 [검색] 아이콘 누르기",
-        "자판으로 '임영웅 노래' 또는 '아침 스트레칭'을 치고 엔터 누르기",
-        "나오는 영상 목록 중 가장 마음에 드는 그림을 눌러 시청하기",
-        "다음에 또 보고 싶다면 영상 아래 빨간색 [구독] 글씨를 꾹 누르기"
-    ],
-    "💬 [소통] 카카오톡 단체방 사진 전송 및 보이스톡": [
-        "노란색 [카카오톡] 어플을 누르고 친구나 단체 대화방 들어가기",
-        "글씨 쓰는 칸 바로 왼쪽에 있는 더하기 모양 [+] 버튼을 톡 누르기",
-        "녹색 초록창 모양의 [앨범] 아이콘을 찾아 누르기",
-        "자녀나 친구에게 보낼 사진 그림을 손가락으로 선택하기",
-        "오른쪽 맨 위에 있는 종이비행기 모양 [전송] 버튼 누르기"
-    ],
-    "⚙️ [기본] 와이파이(Wi-Fi) 주소 연결 및 글자 키우기": [
-        "스마트폰 맨 위 화면 경계선에 손가락을 대고 아래로 스윽 쓸어내리기",
-        "부채꼴 모양의 [와이파이] 안테나 그림을 손가락으로 2초 동안 꾹~ 누르기",
-        "장소 제공자가 알려준 와이파이 이름 글씨를 찾아 손가락으로 누르기",
-        "비밀번호 칸을 누르고 대소문자 구별해서 천천히 번호 입력하기",
-        "글씨가 작을 땐 [설정(톱니바퀴) -> 디스플레이 -> 글자 크기]에서 크게 밀기"
-    ],
-    "🛡️ [보안] 피싱/스팸 문자 차단 및 알약 검사": [
-        "문자 앱을 켜고 모르는 번호로 온 의심스러운 메시지 열기",
-        "문자 내용 안에 들어있는 파란색 인터넷 주소 링크 절대 누르지 않기",
-        "오른쪽 위 [점 3개] 버튼을 찾아서 누르고 [번호 차단] 글씨 누르기",
-        "스마트폰에 기본 설치된 [V3] 또는 [알약M] 앱 아이콘 누르기",
-        "화면 한가운데에 있는 큰 [정밀 검사] 혹은 [최적화] 버튼 누르기"
-    ],
-    "🤖 [실전] 식당/카페 키오스크 기계로 주문하기": [
-        "식당이나 카페에 설치된 대형 모니터 화면(키오스크) 앞으로 가기",
-        "화면 아래에 있는 커다란 [주문하기] 또는 [화면을 터치하세요] 누르기",
-        "먹고 싶은 음식이나 커피 그림을 손가락으로 꾹 누르기",
-        "화면 오른쪽 아래 포장할지(먹고갈지) 선택 버튼 누르기",
-        "[신용카드 결제] 버튼을 누르고 기계 하단 구멍에 카드 꾹 집어넣기"
-    ]
-}
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+st.set_page_config(page_title="시니어 디지털 마스터", layout="wide")
+
+# 어르신 및 사용자용 공통 스타일 적용
+st.markdown("""
+    <style>
+    html, body, [data-testid="stWidgetLabel"] p { font-size: 1.15rem !important; font-weight: bold !important; }
+    h1 { font-size: 2.6rem !important; color: #1E3A8A; }
+    h2 { font-size: 2.0rem !important; color: #0D9488; }
+    div[data-testid="stHorizontalBlock"] { overflow: visible !important; }
+    </style>
+""", unsafe_allow_html=True)
+
+# 💡 [핵심 해결책] 메인 파일 실행 시 모든 페이지에서 쓸 글로벌 세션 변수 미리 방어 생성
+if 'selected_apps' not in st.session_state: st.session_state.selected_apps = []
+if 'duration_weeks' not in st.session_state: st.session_state.duration_weeks = 2
+if 'schedule_matrix' not in st.session_state: st.session_state.schedule_matrix = None
+if 'completed_days' not in st.session_state: st.session_state.completed_days = set()
+
+st.title("👵👴 시니어 디지털 소외 해소를 위한 플랫폼")
+st.subheader("데이터 기반 맞춤형 스마트폰 자립 교육 솔루션")
+st.markdown("---")
+
+@st.cache_data
+def load_data():
+    df = pd.read_csv("countries_media.csv")
+    df['이용행태별(1)'] = df['이용행태별(1)'].str.replace('"', '').str.strip()
+    df['항목'] = df['항목'].str.strip()
+    df['이용행태별(1)'] = df['이용행태별(1)'].str.replace('개인 정보', '개인정보')
+    return df
+
+try:
+    df = load_data()
+    st.markdown("### 📊 대한민국 고령층 디지털 정보화 실태 분석")
+    
+    categories = sorted(df['이용행태별(1)'].unique())
+    selected_category = st.selectbox("🎯 분석하고 싶은 스마트폰 기능을 선택하세요", categories)
+    
+    cate_df = df[df['이용행태별(1)'] == selected_category].copy()
+    
+    # 연도별 데이터 보정 및 전처리
+    processed_records = []
+    for year in sorted(cate_df['시점'].unique()):
+        year_df = cate_df[cate_df['시점'] == year]
+        has_yes = year_df['항목'].str.contains('그렇다').any()
+        
+        if has_yes:
+            yes_row = year_df[year_df['항목'].str.contains('그렇다')].iloc[0]
+            val_60 = yes_row['만60-69세']
+            val_70 = yes_row['만70세이상']
+        else:
+            has_no = year_df['항목'].str.contains('그렇지 않다').any()
+            if has_no:
+                no_row = year_df[year_df['항목'].str.contains('그렇지 않다')].iloc[0]
+                val_60 = round(100 - no_row['만60-69세'], 1)
+                val_70 = round(100 - no_row['만70세이상'], 1)
+            else:
+                val_60, val_70 = 0.0, 0.0
+                
+        processed_records.append({
+            '시점': f"{year}년", '만60-69세': val_60, '만70세이상': val_70, '이용행태별(1)': selected_category
+        })
+        
+    trend_df = pd.DataFrame(processed_records)
+    
+    if not trend_df.empty:
+        latest_row = trend_df.iloc[-1]
+        st.markdown(f"#### 💡 최신 조사 결과 기준 역량 수준 ({latest_row['시점']})")
+        col_m1, col_m2 = st.columns(2)
+        with col_m1:
+            st.metric(label="만 60 ~ 69세 수행 가능 비율", value=f"{latest_row['만60-69세']}%")
+        with col_m2:
+            st.metric(label="만 70세 이상 수행 가능 비율", value=f"{latest_row['만70세이상']}%")
+            
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("#### 📈 연도별 정보화 역량 추이 그래프")
+        if not trend_df.empty:
+            fig_line = px.line(trend_df, x='시점', y=['만60-69세', '만70세이상'],
+                               labels={'value': '가능 비율 (%)', '시점': '조사 연도', 'variable': '연령대'},
+                               markers=True, title=f"[{selected_category}] 연도별 추이")
+            fig_line.update_layout(autosize=True, margin=dict(l=40, r=40, t=40, b=40), xaxis={'type': 'category'})
+            st.plotly_chart(fig_line, use_container_width=True, config={'responsive': True})
+            
+    with col2:
+        st.markdown("#### 🎯 연도별 연령층 간 분포도")
+        if not cate_df.empty:
+            cate_df['시점'] = cate_df['시점'].astype(str) + "년"
+            fig_scatter = px.scatter(cate_df, x='만60-69세', y='만70세이상', color='항목',
+                                     hover_data=['시점'], title="연령층 간 점수 분포 비율")
+            fig_scatter.update_traces(marker=dict(size=14, line=dict(width=1, color='DarkSlateGrey')))
+            fig_scatter.update_layout(autosize=True, margin=dict(l=40, r=40, t=40, b=40))
+            st.plotly_chart(fig_scatter, use_container_width=True, config={'responsive': True})
+        
+    st.markdown("---")
+    st.info("💡 통계를 확인하셨다면 왼쪽 메뉴에서 **'1 학습 어플 및 기간 선택'**을 눌러 진행하세요!")
+except Exception as e:
+    st.error(f"🚨 파일을 불러올 수 없거나 에러가 발생했습니다: {e}")
