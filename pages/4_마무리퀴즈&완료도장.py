@@ -1,48 +1,96 @@
 import streamlit as st
-import datetime
 
-st.set_page_config(page_title="4단계: 퀴즈 및 도장", layout="wide")
+st.set_page_config(page_title="마무리 퀴즈", layout="wide")
 
+# 세션 상태 방어선 고정
+if 'selected_apps' not in st.session_state: st.session_state.selected_apps = []
+if 'duration_weeks' not in st.session_state: st.session_state.duration_weeks = 2
+if 'schedule_matrix' not in st.session_state: st.session_state.schedule_matrix = None
+if 'completed_days' not in st.session_state: st.session_state.completed_days = set()
+
+# 어르신 전용 큰 글씨 및 스타일 디자인
 st.markdown("""
     <style>
-    .stButton>button { font-size: 1.4rem !important; padding: 15px !important; background-color: #10B981 !important; color: white !important; width: 100%; border-radius: 10px; }
+    html, body, [data-testid="stWidgetLabel"] p { font-size: 1.2rem !important; font-weight: bold !important; }
+    h1 { font-size: 2.5rem !important; color: #1E3A8A; }
+    h3 { font-size: 1.8rem !important; color: #1E40AF; }
+    .stRadio [data-testid="stWidgetLabel"] p { font-size: 1.3rem !important; color: #334155; }
+    div[data-testid="stMarkdownContainer"] p { font-size: 1.15rem; }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🏆 마무리 점검 퀴즈 및 도장 받기")
-st.write("퀴즈와 미션 스크린샷 인증을 통과하면 배움 달력에 도장이 찍힙니다.")
+st.title("💯 4단계: 마무리 퀴즈 및 완료 도장 받기")
+st.write("오늘 실전 실습을 잘 마치셨나요? 가벼운 퀴즈를 풀고 오늘 달력에 참 잘했어요 도장을 찍어보세요!")
 st.markdown("---")
 
-if 'schedule_matrix' not in st.session_state or not st.session_state.schedule_matrix:
-    st.warning("⚠️ 이전 단계에서 미션을 진행한 후 이용해주세요.")
+if st.session_state.schedule_matrix is None:
+    st.warning("⚠️ 앞 단계에서 배우고 싶은 기능을 선택하고 스케줄표를 먼저 완성해 주세요!")
 else:
+    # 1. 주차 및 요일 선택 셀렉터 (3페이지와 동일하게 연동)
+    weeks_list = list(range(1, st.session_state.duration_weeks + 1))
     days_list = ["월", "화", "수", "목", "금", "토", "일"]
-    col1, col2 = st.columns(2)
-    with col1:
-        w_tgt = st.selectbox("인증할 주차 고르기:", list(range(1, st.session_state.duration_weeks + 1)))
-    with col2:
-        d_tgt = st.selectbox("인증할 요일 고르기:", days_list, index=datetime.datetime.today().weekday())
-        
-    current_task = st.session_state.schedule_matrix[w_tgt][d_tgt]
-    st.info(f"체크 대상 미션: {current_task}")
     
-    st.markdown("### 📝 실전 마무리 안심 퀴즈")
-    quiz_ans = st.radio(
-        "Q. 스마트폰으로 거래나 예매 중 '모르는 사람'이 보낸 파란색 링크 주소를 눌러도 될까요?",
-        ["1) 안전하니까 눌러서 확인해본다.", "2) 피싱 위험이 있으므로 절대로 누르지 않고 무시한다."]
-    )
-    
-    st.markdown("### 📸 실제 스마트폰 화면 사진 인증하기")
-    uploaded_file = st.file_uploader("스마트폰 캡처 사진 등록하기 (생략 가능)", type=["png", "jpg", "jpeg"])
-    if uploaded_file:
-        st.image(uploaded_file, caption="어르신이 등록하신 인증 화면", width=300)
+    col_sel1, col_sel2 = st.columns(2)
+    with col_sel1:
+        selected_w = st.selectbox("📅 오늘의 [주차]를 고르세요:", weeks_list)
+    with col_sel2:
+        selected_d = st.selectbox("📆 오늘의 [요일]을 고르세요:", days_list)
         
+    current_task = st.session_state.schedule_matrix[selected_w][selected_d]
+    
     st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(f"📢 **오늘의 미션 확인:** `제 {selected_w}주차 {selected_d}요일 - {current_task}`")
+    st.markdown("---")
     
-    if st.button("🏆 최종 완료 도장 쾅 찍기! 🏆"):
-        if "1)" in quiz_ans:
-            st.error("❌ 퀴즈 틀렸습니다! 안전을 위해 모르는 주소는 절대로 누르면 안 됩니다. 정답을 다시 고르고 도장을 누르세요.")
-        else:
-            st.session_state.completed_days.add((w_tgt, d_tgt))
-            st.balloons()
-            st.success(f"👏 축하합니다! 제{w_tgt}주 {d_tgt}요일 달력 칸이 활성화되었습니다. '2_한눈에_보는_주간_달력'에서 연해진 초록색 칸을 확인하세요!")
+    st.subheader("❓ 오늘의 디지털 마스터 확인 퀴즈")
+    st.write("오늘 배운 내용입니다. 다음 중 올바른 행동이나 정답을 1~3번 중에서 하나 고르세요.")
+    
+    # 💡 [핵심 기능] 오늘의 미션 키워드를 분석하여 맞춤형 3지선다 객관식 문제 추출
+    quiz_title = "Q. 오늘 배운 기능을 안전하게 사용하기 위한 올바른 방법은 무엇일까요?"
+    options = ["1번: 잘 모르겠으면 화면 아무 곳이나 빠르게 연속으로 막 누른다.", 
+               "2번: 안내 순서에 따라 글씨와 버튼을 천천히 눈으로 확인하며 누른다.", 
+               "3번: 무서우니까 스마트폰을 그냥 즉시 꺼버린다."]
+    correct_idx = 1 # 기본값 2번
+    
+    if "똑닥" in current_task or "병원" in current_task:
+        quiz_title = "Q. 똑닥 어플에서 원하는 병원을 찾고 싶을 때 가장 먼저 눌러야 하는 그림은 무엇일까요?"
+        options = ["1번: 돋보기 모양 (검색창)", "2번: 쓰레기통 모양 (삭제)", "3번: 더하기 모양 (추가)"]
+        correct_idx = 0
+    elif "QR코드" in current_task or "처방전" in current_task:
+        quiz_title = "Q. 스마트폰으로 종이 처방전의 QR코드를 인식시킬 때 올바른 자세는 무엇일까요?"
+        options = ["1번: 스마트폰을 흔들며 카메라를 처방전에 바짝 비빈다.", 
+                   "2번: 카메라 사각형 점선 안에 QR코드가 쏙 들어오게 수평을 맞추고 2초간 멈춘다.", 
+                   "3번: 불을 다 끄고 어두운 방안에서 사진을 찍는다."]
+        correct_idx = 1
+    elif "이체" in current_task or "용돈 보내기" in current_task:
+        quiz_title = "Q. 은행 앱으로 돈을 보낼 때, 돈이 실제로 빠져나가기 직전 '가장 중요하게' 확인해야 할 것은?"
+        options = ["1번: 스마트폰 배터리가 얼마나 남았는지 확인한다.", 
+                   "2번: 오늘 날씨가 맑은지 하늘을 확인한다.", 
+                   "3번: 화면에 뜬 '받는 사람 이름'과 '보낼 금액'이 맞는지 눈으로 재확인한다."]
+        correct_idx = 2
+    elif "삼성페이" in current_task or "결제" in current_task:
+        quiz_title = "Q. 스마트폰 간편결제를 할 때, 스마트폰의 어느 부위를 가게 카드 단말기에 대야 할까요?"
+        options = ["1번: 스마트폰 화면 맨 앞면 유리창", "2번: 스마트폰의 아래쪽 충전 구멍", "3번: 스마트폰의 뒷면 중앙 부분"]
+        correct_idx = 2
+    elif "카카오T" in current_task or "택시" in current_task:
+        quiz_title = "Q. 카카오T 앱에서 추가 요금 없이 가장 일반적이고 저렴하게 택시를 부르는 메뉴의 이름은?"
+        options = ["1번: 모범 고급 호출", "2번: 일반 호출", "3번: 특급 대형 호출"]
+        correct_idx = 1
+    elif "유튜브" in current_task or "임영웅" in current_task:
+        quiz_title = "Q. 유튜브에서 내가 좋아하는 가수의 노래를 검색창에 치고 난 후 눌러야 하는 자판 단추는?"
+        options = ["1번: 돋보기 모양 (검색 단추)", "2번: 줄바꿈 모양 (엔터 단추)", "3번: 한영 변환 단추"]
+        correct_idx = 0
+    elif "사진 전송" in current_task or "카카오톡" in current_task:
+        quiz_title = "Q. 카카오톡 대화방에서 상대방에게 내 사진을 전송하고 싶을 때 먼저 눌러야 하는 기호는?"
+        options = ["1번: 물음표 기호 [?]", "2번: 더하기 모양 기호 [+]", "3번: 느낌표 기호 [!]"]
+        correct_idx = 1
+    elif "전화로 설명" in current_task or "혼자서" in current_task or "종이에" in current_task or "복습" in current_task:
+        # 응용/복습 미션 전용 퀴즈
+        quiz_title = "Q. 오늘 진행한 '혼자 복습 및 응용 미션'의 가장 큰 핵심 목표는 무엇일까요?"
+        options = ["1번: 남의 도움 없이 내 손 끝 감각으로 직접 다뤄보며 완전히 내 것으로 만들기", 
+                   "2번: 스마트폰을 새로 한 대 더 사러 대리점에 가기", 
+                   "3번: 어플이 어려우니까 앞으로 스마트폰을 절대 안 쓰기"]
+        correct_idx = 0
+
+    # 퀴즈 선택 선지 위젯 (어르신들이 고르기 쉽게 세로 라디오 버튼 배치)
+    user_choice = st.radio(quiz_title, options, index=None, placeholder="여기를 눌러 1~
